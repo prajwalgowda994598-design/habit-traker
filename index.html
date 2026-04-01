@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HabitForge — Build Habits That Stick</title>
+    <meta name="description"
+        content="Track your daily habits, visualize streaks with candlestick charts, and view your history in a contribution heatmap." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.1/dist/chartjs-chart-financial.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!-- ========== GLOBAL BACKGROUND ========== -->
+    <div class="global-backdrop"></div>
+    <div class="global-noise"></div>
+
+    <!-- ========== INTRO VIEW ========== -->
+    <div id="view-intro" class="view"
+        style="align-items: center; justify-content: center; background: #000; z-index: 9999;">
+        <div class="intro-brand" style="text-align: center;">
+            <div class="brand-icon">⚡</div>
+            <h1 class="brand-name">HabitTracker</h1>
+        </div>
+    </div>
+
+    <!-- ========== AUTH VIEW ========== -->
+    <div id="view-auth" class="view">
+        <div class="auth-bg">
+            <div class="auth-orb orb1"></div>
+            <div class="auth-orb orb2"></div>
+            <div class="auth-orb orb3"></div>
+            <div class="auth-orb orb4"></div>
+        </div>
+        <div class="auth-container">
+            <div class="auth-brand" style="margin-bottom: 2rem;">
+                <h2 style="font-family: 'Outfit', sans-serif; font-weight: 800; color: #e50914; letter-spacing: 1px;">⚡
+                    HabitTracker</h2>
+            </div>
+            <div class="flip-container" id="flip-container">
+                <div class="form-container sign-up-container">
+                    <form id="form-signup" onsubmit="handleSignup(event)">
+                        <h2>Create Account</h2>
+                        <div class="form-group" style="width: 100%;">
+                            <div class="input-wrap">
+                                <span class="input-icon">👤</span>
+                                <input type="text" id="signup-name" placeholder="Name" required />
+                            </div>
+                        </div>
+                        <div class="form-group" style="width: 100%;">
+                            <div class="input-wrap">
+                                <span class="input-icon">✉</span>
+                                <input type="email" id="signup-email" placeholder="Email" required />
+                            </div>
+                        </div>
+                        <div class="form-group" style="width: 100%;">
+                            <div class="input-wrap">
+                                <span class="input-icon">🔒</span>
+                                <input type="password" id="signup-password" placeholder="Password" required
+                                    minlength="6" />
+                            </div>
+                        </div>
+                        <div id="signup-error" class="form-error hidden" style="width: 100%; margin-top: 10px;"></div>
+                        <button type="submit" class="btn btn-primary" id="signup-btn" style="margin-top: 15px;">Sign
+                            Up</button>
+                    </form>
+                </div>
+                <div class="form-container sign-in-container">
+                    <form id="form-login" onsubmit="handleLogin(event)">
+                        <h2>Sign In</h2>
+                        <div class="form-group" style="width: 100%;">
+                            <div class="input-wrap">
+                                <span class="input-icon">✉</span>
+                                <input type="email" id="login-email" placeholder="Email" required />
+                            </div>
+                        </div>
+                        <div class="form-group" style="width: 100%;">
+                            <div class="input-wrap">
+                                <span class="input-icon">🔒</span>
+                                <input type="password" id="login-password" placeholder="Password" required />
+                            </div>
+                        </div>
+                        <div id="login-error" class="form-error hidden" style="width: 100%; margin-top: 10px;"></div>
+                        <p class="auth-demo-hint" style="margin: 10px 0;">🚀 Demo: <strong>demo@test.com</strong> /
+                            <strong>123456</strong>
+                        </p>
+                        <button type="submit" class="btn btn-primary" id="login-btn">Sign In</button>
+                    </form>
+                </div>
+                <div class="overlay-container">
+                    <div class="overlay">
+                        <div class="overlay-panel overlay-left">
+                            <h2>Welcome Back!</h2>
+                            <p>To keep connected with us please login with your personal info</p>
+                            <button class="btn btn-ghost" id="signIn">Sign In</button>
+                        </div>
+                        <div class="overlay-panel overlay-right">
+                            <h2>Hello, Friend!</h2>
+                            <p>Enter your personal details and start your habit journey</p>
+                            <button class="btn btn-ghost" id="signUp">Sign Up</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APP SHELL ========== -->
+    <div id="app-shell" class="hidden">
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon-sm">⚡</div>
+                <span class="sidebar-brand-name">HabitForge</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <button class="nav-link active" id="nav-tracker" onclick="navigateTo('tracker')">
+                        <span class="nav-icon">✅</span>
+                        <span class="nav-label">Today</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="nav-habits" onclick="navigateTo('habits')">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-label">My Habits</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="nav-analytics" onclick="navigateTo('analytics')">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Analytics</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="nav-history" onclick="navigateTo('history')">
+                        <span class="nav-icon">🗓️</span>
+                        <span class="nav-label">History</span>
+                    </button>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-chip" id="user-chip">
+                    <div class="user-avatar" id="user-avatar">P</div>
+                    <div class="user-info">
+                        <span class="user-name" id="user-display-name">Prajwal</span>
+                        <span class="user-streak" id="user-streak-label">🔥 0 day streak</span>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()" title="Logout">⏏</button>
+            </div>
+        </nav>
+
+        <!-- Mobile Top Bar -->
+        <div class="mobile-topbar">
+            <div class="brand-icon-sm">⚡</div>
+            <span style="font-weight:700;color:var(--text-primary)">HabitForge</span>
+            <button class="hamburger" onclick="toggleSidebar()" id="hamburger-btn">☰</button>
+        </div>
+
+        <!-- Page Content -->
+        <main class="main-content" id="main-content">
+
+            <!-- ===== TODAY'S TRACKER PAGE ===== -->
+            <div id="page-tracker" class="page active">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title" id="tracker-date-title">Today — <span id="todays-date"></span></h2>
+                        <p class="page-subtitle">Check off your habits as you crush them 💪</p>
+                    </div>
+                    <div class="header-actions">
+                        <div class="completion-badge" id="completion-badge">
+                            <span id="completion-count">0/0</span> done
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="daily-progress-bar"></div>
+                    </div>
+                    <span class="progress-pct" id="daily-progress-pct">0%</span>
+                </div>
+
+                <div id="tracker-list" class="tracker-list">
+                    <!-- Habits rendered by JS -->
+                </div>
+
+                <div id="tracker-empty" class="empty-state hidden">
+                    <div class="empty-icon">🎯</div>
+                    <h3>No habits yet!</h3>
+                    <p>Set up your first habit to start tracking.</p>
+                    <button class="btn btn-primary" onclick="navigateTo('habits')">Create a Habit</button>
+                </div>
+            </div>
+
+            <!-- ===== MY HABITS PAGE ===== -->
+            <div id="page-habits" class="page hidden">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">My Habits</h2>
+                        <p class="page-subtitle">Create and manage your goals</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openHabitModal()">
+                        <span>+ New Habit</span>
+                    </button>
+                </div>
+
+                <div id="habits-grid" class="habits-grid">
+                    <!-- Habit cards rendered by JS -->
+                </div>
+
+                <div id="habits-empty" class="empty-state hidden">
+                    <div class="empty-icon">✨</div>
+                    <h3>Start your journey!</h3>
+                    <p>Create your first habit and begin building consistency.</p>
+                    <button class="btn btn-primary" onclick="openHabitModal()">+ Create Habit</button>
+                </div>
+            </div>
+
+            <!-- ===== ANALYTICS PAGE ===== -->
+            <div id="page-analytics" class="page hidden">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Analytics</h2>
+                        <p class="page-subtitle">Visualize your performance over time</p>
+                    </div>
+                    <select id="analytics-habit-select" class="select-input" onchange="renderAnalytics()">
+                        <option value="">— Select Habit —</option>
+                    </select>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value" id="stat-streak">0</div>
+                        <div class="stat-label">Current Streak</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="stat-best">0</div>
+                        <div class="stat-label">Best Streak</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Total Days Done</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="stat-rate">0%</div>
+                        <div class="stat-label">Completion Rate</div>
+                    </div>
+                </div>
+
+                <div class="chart-card glass-card">
+                    <div class="chart-header">
+                        <h3>📊 Candlestick Progress Chart</h3>
+                        <p class="chart-desc">Each candle = 1 week. Green = >70% completion. Red = below target.</p>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="candlestick-chart"></canvas>
+                    </div>
+                    <div id="analytics-empty" class="empty-state hidden">
+                        <div class="empty-icon">📊</div>
+                        <p>Select a habit to see your analytics</p>
+                    </div>
+                </div>
+
+                <div class="chart-card glass-card" style="margin-top:1.5rem">
+                    <div class="chart-header">
+                        <h3>📈 Daily Completion Trend</h3>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="trend-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== HISTORY / HEATMAP PAGE ===== -->
+            <div id="page-history" class="page hidden">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">History</h2>
+                        <p class="page-subtitle">Your year at a glance — every dot is a day</p>
+                    </div>
+                    <select id="history-habit-select" class="select-input" onchange="renderHeatmap()">
+                        <option value="all">All Habits</option>
+                    </select>
+                </div>
+
+                <div class="heatmap-card glass-card">
+                    <div class="heatmap-legend">
+                        <span class="legend-label">Less</span>
+                        <div class="legend-cell" style="background:var(--heat-0)"></div>
+                        <div class="legend-cell" style="background:var(--heat-1)"></div>
+                        <div class="legend-cell" style="background:var(--heat-2)"></div>
+                        <div class="legend-cell" style="background:var(--heat-3)"></div>
+                        <div class="legend-cell" style="background:var(--heat-4)"></div>
+                        <span class="legend-label">More</span>
+                    </div>
+                    <div class="heatmap-scroll">
+                        <div class="heatmap-months" id="heatmap-months"></div>
+                        <div class="heatmap-body">
+                            <div class="heatmap-days">
+                                <span>Mon</span><span>Wed</span><span>Fri</span><span>Sun</span>
+                            </div>
+                            <div class="heatmap-grid" id="heatmap-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="history-log-card glass-card">
+                    <h3 style="margin-bottom:1rem;color:var(--text-primary)">📋 Recent Activity</h3>
+                    <div id="activity-log" class="activity-log"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ========== NEW HABIT MODAL ========== -->
+    <div id="habit-modal" class="modal-overlay hidden" onclick="closeHabitModal(event)">
+        <div class="modal-card glass-card" id="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title">Create New Habit</h3>
+                <button class="modal-close" onclick="closeHabitModalDirect()">✕</button>
+            </div>
+            <form id="habit-form" onsubmit="saveHabit(event)">
+                <div class="form-group">
+                    <label>Habit Name</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📝</span>
+                        <input type="text" id="habit-name" placeholder="e.g., Morning Run" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <div class="category-grid" id="category-grid">
+                        <button type="button" class="cat-btn" data-cat="Health" onclick="selectCategory(this)">💪
+                            Health</button>
+                        <button type="button" class="cat-btn" data-cat="Study" onclick="selectCategory(this)">📚
+                            Study</button>
+                        <button type="button" class="cat-btn" data-cat="Gym" onclick="selectCategory(this)">🏋️
+                            Gym</button>
+                        <button type="button" class="cat-btn" data-cat="Work" onclick="selectCategory(this)">💼
+                            Work</button>
+                        <button type="button" class="cat-btn" data-cat="Mindfulness" onclick="selectCategory(this)">🧘
+                            Mindfulness</button>
+                        <button type="button" class="cat-btn" data-cat="Custom" onclick="selectCategory(this)">✨
+                            Custom</button>
+                    </div>
+                    <input type="hidden" id="habit-category" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="habit-duration">Duration (days)</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">📅</span>
+                            <input type="number" id="habit-duration" min="1" max="365" value="30" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="habit-target">Daily Target</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">⏱️</span>
+                            <input type="number" id="habit-target" min="1" value="30" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="habit-unit">Unit</label>
+                    <select id="habit-unit" class="select-input">
+                        <option value="minutes">minutes</option>
+                        <option value="hours">hours</option>
+                        <option value="reps">reps</option>
+                        <option value="pages">pages</option>
+                        <option value="count">count</option>
+                    </select>
+                </div>
+                <input type="hidden" id="habit-edit-id" value="" />
+                <div id="habit-form-error" class="form-error hidden"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" onclick="closeHabitModalDirect()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== LOG MODAL ========== -->
+    <div id="log-modal" class="modal-overlay hidden" onclick="closeLogModal(event)">
+        <div class="modal-card glass-card" id="log-modal-card">
+            <div class="modal-header">
+                <h3 id="log-modal-title">Update Progress</h3>
+                <button class="modal-close" onclick="closeLogModalDirect()">✕</button>
+            </div>
+            <form id="log-form" onsubmit="saveLog(event)">
+                <input type="hidden" id="log-habit-id" />
+                <div class="form-group">
+                    <label id="log-progress-label">Progress (minutes)</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📊</span>
+                        <input type="number" id="log-progress" min="0" placeholder="0" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="log-notes">Notes (optional)</label>
+                    <textarea id="log-notes" class="textarea-input" placeholder="How did it go? Any thoughts..."
+                        rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" onclick="closeLogModalDirect()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== TOAST ========== -->
+    <div id="toast" class="toast hidden">
+        <span id="toast-icon">✅</span>
+        <span id="toast-msg">Saved!</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
